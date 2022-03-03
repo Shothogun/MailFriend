@@ -3,7 +3,7 @@ import psycopg2
 from config import config
 
 
-def connect():
+def initDatabase():
     """ Connect to the PostgreSQL database server """
     conn = None
     try:
@@ -29,7 +29,7 @@ def connect():
                         CallID SERIAL, \
                         CallCode VARCHAR(30),\
                         Organization VARCHAR(50), \
-                        CallType INT, \
+                        CallType VARCHAR(30), \
                         Status VARCHAR(30), \
                         Category VARCHAR(30), \
                         SubCategory VARCHAR(30), \
@@ -55,4 +55,4 @@ def connect():
 
 
 if __name__ == '__main__':
-    connect()
+    initDatabase()

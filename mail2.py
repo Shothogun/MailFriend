@@ -1,65 +1,77 @@
 # import python poplib module
 import poplib
+from datetime import datetime
 from bs4 import BeautifulSoup
 import html
 import os
-  
-from parso import parse
+import dbClass
 
-def print_email_info(lines):
 
-  # lines stores each line of the original text of the message
-  # so that you can get the original text of the entire message use the join function and lines variable.
-  msg_content = b'\r\n'.join(lines).decode('utf-8')
+def parseEmailCall(lines):
 
-  msg_content = msg_content.replace('=09','')
-  msg_content = msg_content.replace('=E7','ç')
+    # lines stores each line of the original text of the message
+    # so that you can get the original text of the entire message use the join function and lines variable.
+    msg_content = b'\r\n'.join(lines).decode('utf-8')
 
-  msg_content = msg_content.replace('=C0','À')
-  msg_content = msg_content.replace('=C1','Á')
-  msg_content = msg_content.replace('=C2','Â')
-  msg_content = msg_content.replace('=C3','Ã')
-  msg_content = msg_content.replace('=E0','à')
-  msg_content = msg_content.replace('=E1','á')
-  msg_content = msg_content.replace('=E2','â')
-  msg_content = msg_content.replace('=E3','ã')
+    msg_content = msg_content.replace('=09', '')
+    msg_content = msg_content.replace('=E7', 'ç')
 
-  msg_content = msg_content.replace('=C9','É')
-  msg_content = msg_content.replace('=CA','Ê')
-  msg_content = msg_content.replace('=E9','é')
-  msg_content = msg_content.replace('=EA','ê')
+    msg_content = msg_content.replace('=C0', 'À')
+    msg_content = msg_content.replace('=C1', 'Á')
+    msg_content = msg_content.replace('=C2', 'Â')
+    msg_content = msg_content.replace('=C3', 'Ã')
+    msg_content = msg_content.replace('=E0', 'à')
+    msg_content = msg_content.replace('=E1', 'á')
+    msg_content = msg_content.replace('=E2', 'â')
+    msg_content = msg_content.replace('=E3', 'ã')
 
-  msg_content = msg_content.replace('=CD','Í')
-  msg_content = msg_content.replace('=CE','Î')
-  msg_content = msg_content.replace('=ED','í')
-  msg_content = msg_content.replace('=EE','î')
+    msg_content = msg_content.replace('=C9', 'É')
+    msg_content = msg_content.replace('=CA', 'Ê')
+    msg_content = msg_content.replace('=E9', 'é')
+    msg_content = msg_content.replace('=EA', 'ê')
 
-  msg_content = msg_content.replace('=D3','Ó')
-  msg_content = msg_content.replace('=D4','Ô')
-  msg_content = msg_content.replace('=F3','ó')
-  msg_content = msg_content.replace('=F4','ô')
+    msg_content = msg_content.replace('=CD', 'Í')
+    msg_content = msg_content.replace('=CE', 'Î')
+    msg_content = msg_content.replace('=ED', 'í')
+    msg_content = msg_content.replace('=EE', 'î')
 
-  msg_content = msg_content.replace('=DA','Ú')
-  msg_content = msg_content.replace('=DB','Û')
-  msg_content = msg_content.replace('=FA','ú')
-  msg_content = msg_content.replace('=FB','û')
+    msg_content = msg_content.replace('=D3', 'Ó')
+    msg_content = msg_content.replace('=D4', 'Ô')
+    msg_content = msg_content.replace('=F3', 'ó')
+    msg_content = msg_content.replace('=F4', 'ô')
 
-  msg_content = msg_content.replace('=\r\n','')
+    msg_content = msg_content.replace('=DA', 'Ú')
+    msg_content = msg_content.replace('=DB', 'Û')
+    msg_content = msg_content.replace('=FA', 'ú')
+    msg_content = msg_content.replace('=FB', 'û')
 
-  soup =  BeautifulSoup(msg_content, 'html.parser')
+    msg_content = msg_content.replace('=\r\n', '')
 
-  # print(soup.prettify())
-  b = soup.find_all(attrs={"width": "3D\"200\""})
-  fields = [a.string for a in soup.find_all(attrs={"width": "3D\"200\""})]
-  values = [a.string for a in soup.find_all(attrs={"width": "3D\"410\""})]
+    soup = BeautifulSoup(msg_content, 'html.parser')
 
-  data = zip(fields,values)
+    # print(soup.prettify())
+    b = soup.find_all(attrs={"width": "3D\"200\""})
+    fields = [a.string for a in soup.find_all(attrs={"width": "3D\"200\""})]
+    values = [a.string for a in soup.find_all(attrs={"width": "3D\"410\""})]
 
-  for name,value in data:
-    print(name, ': ',value)
-    print('---------------')
+    return fields, values
 
-  return 
+
+def createCall(keys, values):
+    call = {}
+    keys = [
+        'callcode', 'organization', 'calltype', 'status', 'category',
+        'subcategory', 'slaaimdate', 'answeraimdate', 'answered', 'answerdate',
+        'conectivityfailtime', 'conectivitynormalizationtime', 'registerdate',
+        'description', 'slapausebeginningdate', 'slapausefinishdate'
+    ]
+
+    for i in range(len(values)):
+        print(keys[i], ':', values[i])
+        call[keys[i]] = '\'{0}\''.format(values[i])
+
+    return call
+
 
 # input email address, password and pop3 server domain or ip address
 # email = input('Email: ')
@@ -99,9 +111,26 @@ index = len(mails)
 
 amount = int(input("How many last recently received emails? "))
 
-for i in range(index, index-amount,-1):
-  print("==== Email:", i, "=====")
-  resp, lines, octets = server.retr(index)
-  print_email_info(lines)
+calls = []
+
+for i in range(index, index - amount, -1):
+    print("==== Email:", i, "=====")
+    resp, lines, octets = server.retr(i)
+    fields, values = parseEmailCall(lines)
+
+    if len(fields) < 5:
+      print('PASSEI')
+      continue
+
+    calls.append(createCall(fields, values))
 
 server.quit()
+
+db = dbClass.dbClass()
+
+db.connect()
+
+for c in calls:
+    db.insertCall(c)
+
+db.close()
