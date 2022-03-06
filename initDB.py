@@ -43,6 +43,27 @@ def initDatabase():
                         Description VARCHAR(100), \
                         SlaPauseBeginningDate TIMESTAMP, \
                         SlaPauseFinishDate TIMESTAMP );')
+
+        cur.execute('CREATE TABLE CallLogs (\
+                        LogID SERIAL, \
+                        CallID SERIAL, \
+                        CallCode VARCHAR(30),\
+                        Organization VARCHAR(50), \
+                        CallType VARCHAR(30), \
+                        Status VARCHAR(30), \
+                        Category VARCHAR(30), \
+                        SubCategory VARCHAR(30), \
+                        SlaAimDate TIMESTAMP, \
+                        AnswerAimDate TIMESTAMP, \
+                        ANSWERED BOOLEAN, \
+                        AnswerDate TIMESTAMP, \
+                        ConectivityFailTime TIMESTAMP, \
+                        ConectivityNormalizationTime TIMESTAMP, \
+                        RegisterDate TIMESTAMP, \
+                        Description VARCHAR(100), \
+                        SlaPauseBeginningDate TIMESTAMP, \
+                        SlaPauseFinishDate TIMESTAMP );')
+                        
         conn.commit()
         # close the communication with the PostgreSQL
         cur.close()

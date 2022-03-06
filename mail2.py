@@ -49,10 +49,9 @@ def parseEmailCall(lines):
 
     soup = BeautifulSoup(msg_content, 'html.parser')
 
-    # print(soup.prettify())
-    b = soup.find_all(attrs={"width": "3D\"200\""})
+    print(soup.prettify())
     fields = [a.string for a in soup.find_all(attrs={"width": "3D\"200\""})]
-    values = [a.string for a in soup.find_all(attrs={"width": "3D\"410\""})]
+    values = [a.contents[0] for a in soup.find_all(attrs={"width": "3D\"410\""})]
 
     return fields, values
 
@@ -65,6 +64,9 @@ def createCall(keys, values):
         'conectivityfailtime', 'conectivitynormalizationtime', 'registerdate',
         'description', 'slapausebeginningdate', 'slapausefinishdate'
     ]
+
+    if len(values) < 5:
+        keys = ['callcode', 'registerdate', 'description', 'organization']
 
     for i in range(len(values)):
         print(keys[i], ':', values[i])
@@ -113,15 +115,10 @@ amount = int(input("How many last recently received emails? "))
 
 calls = []
 
-for i in range(index, index - amount, -1):
+for i in range(index - amount + 1, index+1):
     print("==== Email:", i, "=====")
     resp, lines, octets = server.retr(i)
     fields, values = parseEmailCall(lines)
-
-    if len(fields) < 5:
-      print('PASSEI')
-      continue
-
     calls.append(createCall(fields, values))
 
 server.quit()
@@ -131,6 +128,6 @@ db = dbClass.dbClass()
 db.connect()
 
 for c in calls:
-    db.insertCall(c)
+    db.pushCall(c)
 
 db.close()
