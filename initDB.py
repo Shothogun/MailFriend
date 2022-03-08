@@ -28,7 +28,7 @@ def initDatabase():
         cur.execute('CREATE TABLE Calls (\
                         CallID SERIAL, \
                         CallCode VARCHAR(30),\
-                        Organization VARCHAR(50), \
+                        Organization VARCHAR(100), \
                         CallType VARCHAR(30), \
                         Status VARCHAR(30), \
                         Category VARCHAR(30), \
@@ -46,9 +46,9 @@ def initDatabase():
 
         cur.execute('CREATE TABLE CallLogs (\
                         LogID SERIAL, \
-                        CallID SERIAL, \
+                        CallID INT, \
                         CallCode VARCHAR(30),\
-                        Organization VARCHAR(50), \
+                        Organization VARCHAR(100), \
                         CallType VARCHAR(30), \
                         Status VARCHAR(30), \
                         Category VARCHAR(30), \
