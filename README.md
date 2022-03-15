@@ -13,6 +13,14 @@ to be able to be fetch by external programs.
 
 `$ source venv/bin/activate`
 
-- To execute:
+- To setup Flask:
+- 
+`$ export FLASK_APP=mail2.py`
+
+- To execute mail fetch:
 
 `$ python3 mail2.py`
+
+- To execute REST server:
+
+`$ flask run`

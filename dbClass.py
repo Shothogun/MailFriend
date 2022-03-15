@@ -206,3 +206,30 @@ class dbClass:
             return False
         else:
             return True
+
+    def pullCalls(self, n: int):
+        self.cur.execute('''SELECT * FROM calls''')
+
+        calls = []
+        for _ in range(n):
+            value = self.cur.fetchone()
+            calls.append({
+                "callcode": value[1],
+                "organization": value[2],
+                "calltype": value[3],
+                'status': value[4],
+                'category': value[5],
+                'subcategory': value[6],
+                'slaaimdate': value[7],
+                'answeraimdate': value[8],
+                'answered': value[9],
+                'answerdate': value[10],
+                'conectivityfailtime': value[11],
+                'conectivitynormalizationtime': value[12],
+                'registerdate': value[13],
+                'description': value[14],
+                'slapausebeginningdate': value[15],
+                'slapausefinishdate': value[16]
+            })
+
+        return calls

@@ -6,7 +6,7 @@ import os
 import dbClass
 import parser
 
-def main():
+def mail_fetch():
     # input email address, password and pop3 server domain or ip address
     email = os.environ['MAIL_USERNAME']
     password = os.environ['MAIL_PASSWORD']
@@ -63,6 +63,9 @@ def main():
         db.pushCall(c)
 
     db.close()
+
+def main():
+    mail_fetch()
 
 if __name__ == "__main__":
     main()
