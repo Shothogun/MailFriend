@@ -7,9 +7,15 @@ app = Flask(__name__)
 @app.get("/calls")
 def get_emails():
     db = dbClass.dbClass()
+    amount = request.args.get('amount')
     
+    if amount == None:
+        amount = 10
+    else:
+        amount = int(amount)
+
     db.connect()
-    calls = db.pullCalls(10)
+    calls = db.pullCalls(amount)
     db.close()
 
     if calls == None:

@@ -24,3 +24,9 @@ to be able to be fetch by external programs.
 - To execute REST server:
 
 `$ flask run`
+
+## Routes
+
+- Calls GET path: `http://127.0.0.1:5000/calls?amount=n`, where `n` is the 
+amount of emails to fetch.
+
