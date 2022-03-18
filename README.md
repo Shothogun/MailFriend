@@ -15,7 +15,7 @@ to be able to be fetch by external programs.
 
 - To setup Flask:
 - 
-`$ export FLASK_APP=mail2.py`
+`$ export FLASK_APP=server.py`
 
 - To execute mail fetch:
 
