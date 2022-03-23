@@ -131,3 +131,4 @@ database.ini
 .pyre/
 *.json
 *.ini
+database.ini
