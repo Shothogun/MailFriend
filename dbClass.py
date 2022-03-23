@@ -1,8 +1,9 @@
 from pickle import NONE
+from time import time
 import psycopg2
 from psycopg2 import sql
 from config import config
-
+from datetime import date, datetime
 
 class dbClass:
 
@@ -211,25 +212,59 @@ class dbClass:
         self.cur.execute('''SELECT * FROM calls''')
 
         calls = []
-        for _ in range(n):
+        for i in range(n):
             value = self.cur.fetchone()
             calls.append({
-                "callcode": value[1],
-                "organization": value[2],
-                "calltype": value[3],
-                'status': value[4],
-                'category': value[5],
+                'N': i,
+                'ID': value[1],
+                'Organização': value[2],
+                'Tipo': value[3],
+                'Status': value[4],
+                'Categoria': value[5],
                 'subcategory': value[6],
-                'slaaimdate': value[7],
-                'answeraimdate': value[8],
-                'answered': value[9],
-                'answerdate': value[10],
-                'conectivityfailtime': value[11],
-                'conectivitynormalizationtime': value[12],
-                'registerdate': value[13],
-                'description': value[14],
-                'slapausebeginningdate': value[15],
-                'slapausefinishdate': value[16]
+                'Data_Alvo_SLA': value[7],
+                'Data_Alvo_Resp': value[8],
+                'Respondido': value[9],
+                'Data_Resp': value[10],
+                'Hora_Falha': value[11],
+                'Hora_Normalizacao': value[12],
+                'Data_do_Registro': value[13],
+                'Breve_Descricao': value[14],
+                'Pausa_SLA_inicio': value[15],
+                'Pausa_SLA_FIM': value[16],
+                'Tempo_Restante': 0
             })
 
         return calls
+
+    def pullTicketData(self, n: int):
+        calls = self.pullCalls(n)
+
+        current_month = datetime.now().month
+        current_year = datetime.now().year
+
+        self.cur.execute('''SELECT COUNT(*) FROM calls 
+                            WHERE registerdate >= '1/%s/%s' 
+        ''', (current_month, current_year))
+        n_tickets_last_month = self.cur.fetchone()
+
+        self.cur.execute('''SELECT COUNT(*) FROM calls 
+                            WHERE status != 'Fechado' 
+        ''', (current_month, current_year))
+        total_tickets = self.cur.fetchone()
+
+
+        ticketData = {
+            'Info_Geral':{
+                'N_Tickets_Recentes':0, 
+                'N_Tickets_Meia_Vida':0, 
+                'N_Tickets_Perto_Vencer':0, 
+                'N_Tickets_Vencidos':0, 
+                'N_Tickets_Ultimo_Mes': n_tickets_last_month[0], 
+                'N_Tickets_Total': total_tickets[0]
+            },
+            'Lista_1': calls,
+            'Lista_2': []
+        }
+
+        return ticketData        

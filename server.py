@@ -15,10 +15,10 @@ def get_emails():
         amount = int(amount)
 
     db.connect()
-    calls = db.pullCalls(amount)
+    tickets_data = db.pullTicketData(amount)
     db.close()
 
-    if calls == None:
-        calls = {}
+    if tickets_data == None:
+        tickets_data = {}
         
-    return jsonify(calls)
+    return jsonify(tickets_data)
