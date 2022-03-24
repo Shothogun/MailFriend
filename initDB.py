@@ -1,4 +1,3 @@
-from pprint import pprint
 import psycopg2
 from config import config
 

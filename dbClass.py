@@ -1,4 +1,3 @@
-from pickle import NONE
 from time import time
 import psycopg2
 from psycopg2 import sql
