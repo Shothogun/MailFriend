@@ -60,6 +60,7 @@ def initDatabase():
                         ConectivityNormalizationTime TIMESTAMP, \
                         RegisterDate TIMESTAMP, \
                         Description VARCHAR(100), \
+                        callMailDate TIMESTAMP, \
                         SlaPauseBeginningDate TIMESTAMP, \
                         SlaPauseFinishDate TIMESTAMP );')
                         

@@ -1,5 +1,9 @@
 
+from dataclasses import field
 from bs4 import BeautifulSoup
+import re 
+from datetime import datetime
+import pytz
 
 def parseEmailCall(lines):
 
@@ -40,12 +44,20 @@ def parseEmailCall(lines):
     msg_content = msg_content.replace('=FB', 'û')
 
     msg_content = msg_content.replace('=\r\n', '')
+    date = re.search(r"Date: (.*)\r", msg_content).groups()[0][5:-12]
+    # print("2e32r23r32", date)
+    date = datetime.strptime(date, "%d %b %Y %H:%M:%S")
+    timezone = pytz.timezone("UTC")
+    date = timezone.localize(date).astimezone(pytz.timezone("America/Sao_Paulo"))
 
     soup = BeautifulSoup(msg_content, 'html.parser')
 
     # print(soup.prettify())
     fields = [a.string for a in soup.find_all(attrs={"width": "3D\"200\""})]
     values = [a.contents[0] for a in soup.find_all(attrs={"width": "3D\"410\""})]
+
+    fields.append('callmaildate')
+    values.append(date)
 
     return fields, values
 
@@ -56,11 +68,12 @@ def createCall(keys, values):
         'callcode', 'organization', 'calltype', 'status', 'category',
         'subcategory', 'slaaimdate', 'answeraimdate', 'answered', 'answerdate',
         'conectivityfailtime', 'conectivitynormalizationtime', 'registerdate',
-        'description', 'slapausebeginningdate', 'slapausefinishdate'
+        'description', 'slapausebeginningdate', 'slapausefinishdate',
+        'callmaildate'
     ]
 
-    if len(values) < 5:
-        keys = ['callcode', 'registerdate', 'description', 'organization']
+    if len(values) < 6:
+        keys = ['callcode', 'registerdate', 'description', 'organization', 'callmaildate']
 
     for i in range(len(values)):
         if keys[i] == 'answered':

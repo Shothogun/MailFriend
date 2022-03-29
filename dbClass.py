@@ -46,18 +46,19 @@ class dbClass:
             print('Database connection closed.')
 
     def pushCall(self, call):
-        if self.callExists(call['callcode']):
-            self.updateCall(call)
-        else:
+        if not self.callExists(call['callcode']):
             self.insertCall(call)
+        elif not self.callLogExists(call['callcode'], call['callmaildate']):
+            self.updateCall(call)
 
     def insertCall(self, call):
-        if len(call) < 5:
+        if len(call) < 6:
             call['calltype'] = 'NULL'
             call['status'] = 'NULL'
             call['category'] = 'NULL'
             call['subcategory'] = 'NULL'
             call['slaaimdate'] = '\'(empty)\''
+            call['registerdate'] = '\'(empty)\''
             call['answeraimdate'] = '\'(empty)\''
             call['answered'] = 'NULL'
             call['answerdate'] = '\'(empty)\''
@@ -67,6 +68,7 @@ class dbClass:
             call['slapausefinishdate'] = '\'(empty)\''
 
         for tt in self.time_types:
+            print(call)
             if (call[tt] == '\'(empty)\''):
                 call[tt] = 'NULL'
             else:
@@ -78,8 +80,7 @@ class dbClass:
                 (callcode, organization, calltype, status,
                  category, subcategory, slaaimdate, answeraimdate,
                  answered, answerdate, conectivityfailtime, conectivitynormalizationtime,
-                 registerdate, description, slapausebeginningdate, 
-                 slapausefinishdate)
+                 registerdate, description, slapausebeginningdate, slapausefinishdate)
             VALUES
                 ({0}, {1}, {2}, {3},
                  {4}, {5}, {6}, {7},
@@ -102,19 +103,20 @@ class dbClass:
                  category, subcategory, slaaimdate, answeraimdate,
                  answered, answerdate, conectivityfailtime, conectivitynormalizationtime,
                  registerdate, description, slapausebeginningdate, 
-                 slapausefinishdate, callid)
+                 slapausefinishdate, callid, callmaildate)
             VALUES
                 ({0}, {1}, {2}, {3},
                  {4}, {5}, {6}, {7},
                  {8}, {9}, {10}, {11},
-                 {12}, {13}, {14}, {15}, {16});
+                 {12}, {13}, {14}, {15}, {16}, {17});
         '''.format(call['callcode'], call['organization'], call['calltype'],
                    call['status'], call['category'], call['subcategory'],
                    call['slaaimdate'], call['answeraimdate'], call['answered'],
                    call['answerdate'], call['conectivityfailtime'],
                    call['conectivitynormalizationtime'], call['registerdate'],
                    call['description'], call['slapausebeginningdate'],
-                   call['slapausefinishdate'], callID))
+                   call['slapausefinishdate'], callID,
+                   call['callmaildate']))
 
         self.conn.commit()
 
@@ -127,12 +129,13 @@ class dbClass:
             'slapausebeginningdate', 'slapausefinishdate'
         ]
 
-        if len(call) < 5:
+        if len(call) < 6:
             call['calltype'] = 'NULL'
             call['status'] = 'NULL'
             call['category'] = 'NULL'
             call['subcategory'] = 'NULL'
             call['slaaimdate'] = '\'(empty)\''
+            call['registerdate'] = '\'(empty)\''
             call['answeraimdate'] = '\'(empty)\''
             call['answered'] = 'NULL'
             call['answerdate'] = '\'(empty)\''
@@ -154,19 +157,19 @@ class dbClass:
                  category, subcategory, slaaimdate, answeraimdate,
                  answered, answerdate, conectivityfailtime, conectivitynormalizationtime,
                  registerdate, description, slapausebeginningdate, 
-                 slapausefinishdate, callid)
+                 slapausefinishdate, callid, callmaildate)
             VALUES
                 ({0}, {1}, {2}, {3},
                  {4}, {5}, {6}, {7},
                  {8}, {9}, {10}, {11},
-                 {12}, {13}, {14}, {15}, {16});
+                 {12}, {13}, {14}, {15}, {16}, {17});
         '''.format(call['callcode'], call['organization'], call['calltype'],
                    call['status'], call['category'], call['subcategory'],
                    call['slaaimdate'], call['answeraimdate'], call['answered'],
                    call['answerdate'], call['conectivityfailtime'],
                    call['conectivitynormalizationtime'], call['registerdate'],
                    call['description'], call['slapausebeginningdate'],
-                   call['slapausefinishdate'], callID))
+                   call['slapausefinishdate'], callID, call['callmaildate']))
 
         self.cur.execute('''
             UPDATE calls
@@ -201,6 +204,17 @@ class dbClass:
         self.cur.execute('''
             SELECT * FROM calls where callcode = {0};
         '''.format(code))
+
+        if self.cur.fetchone() == None:
+            return False
+        else:
+            return True
+
+    def callLogExists(self, code, date):
+        self.cur.execute('''
+            SELECT * FROM calllogs where callcode = {0} AND
+            callmaildate = {1};
+        '''.format(code,date))
 
         if self.cur.fetchone() == None:
             return False

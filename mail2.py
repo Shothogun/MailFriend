@@ -6,6 +6,7 @@ import os
 import dbClass
 import parser
 
+
 def mail_fetch():
     # input email address, password and pop3 server domain or ip address
     email = os.environ['MAIL_USERNAME']
@@ -46,7 +47,7 @@ def mail_fetch():
     calls = []
 
     # Pull emails and parsing
-    for i in range(index - amount + 1, index+1):
+    for i in range(index - amount + 1, index + 1):
         print("==== Email:", i, "=====")
         resp, lines, octets = server.retr(i)
         fields, values = parser.parseEmailCall(lines)
@@ -54,7 +55,7 @@ def mail_fetch():
 
     server.quit()
 
-    # DB connection and 
+    # DB connection and
     db = dbClass.dbClass()
 
     db.connect()
@@ -64,8 +65,10 @@ def mail_fetch():
 
     db.close()
 
+
 def main():
     mail_fetch()
+
 
 if __name__ == "__main__":
     main()
