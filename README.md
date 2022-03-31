@@ -25,6 +25,16 @@ to be able to be fetch by external programs.
 
 `$ flask run`
 
+## Docker Building
+
+- Build Image:
+
+```$ docker image build -t flask_docker .```
+
+- Run container:
+
+```$ docker run -p 5000:5000 -d flask_docker ```
+
 ## Routes
 
 - Calls GET path: `http://127.0.0.1:5000/calls?amount=n`, where `n` is the 
