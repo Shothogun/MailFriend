@@ -68,7 +68,6 @@ class dbClass:
             call['slapausefinishdate'] = '\'(empty)\''
 
         for tt in self.time_types:
-            print(call)
             if (call[tt] == '\'(empty)\''):
                 call[tt] = 'NULL'
             else:

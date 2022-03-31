@@ -45,7 +45,6 @@ def parseEmailCall(lines):
 
     msg_content = msg_content.replace('=\r\n', '')
     date = re.search(r"Date: (.*)\r", msg_content).groups()[0][5:-12]
-    # print("2e32r23r32", date)
     date = datetime.strptime(date, "%d %b %Y %H:%M:%S")
     timezone = pytz.timezone("UTC")
     date = timezone.localize(date).astimezone(pytz.timezone("America/Sao_Paulo"))
@@ -81,6 +80,6 @@ def createCall(keys, values):
         else:
             call[keys[i]] = '\'{0}\''.format(values[i])
 
-        print(keys[i], ':', values[i])
+        # print(keys[i], ':', values[i])
 
     return call
