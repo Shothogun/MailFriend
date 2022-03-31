@@ -29,7 +29,7 @@ to be able to be fetch by external programs.
 
 - Build Image:
 
-```$ docker image build -t  --no-cache flask_docker .```
+```$ docker image build -t flask_docker . --no-cache```
 
 - Run container:
 
