@@ -1,11 +1,11 @@
 from time import time
+import os
 import psycopg2
 from psycopg2 import sql
 from config import config
 from datetime import date, datetime
 
 class dbClass:
-
     def __init__(self):
         self.conn = None
         self.cur = None
@@ -19,7 +19,7 @@ class dbClass:
         """ Connect to the PostgreSQL database server """
         try:
             # read connection parameters
-            params = config()
+            params = config(filename=os.environ['CONFIG_PATH'])
 
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
@@ -73,6 +73,7 @@ class dbClass:
             else:
                 call[tt] = 'timestamp ' + call[tt]
 
+        print(call)
         self.cur.execute('''
             INSERT INTO 
                 calls
@@ -221,13 +222,15 @@ class dbClass:
             return True
 
     def pullCalls(self, n: int):
-        self.cur.execute('''SELECT * FROM calls''')
+        self.cur.execute('''SELECT * FROM calls 
+                            WHERE status != 'Fechado' ''')
 
         calls = []
+
         for i in range(n):
             value = self.cur.fetchone()
-
-
+            if value == None:
+                continue
 
             calls.append({
                 'N': i,
@@ -268,7 +271,10 @@ class dbClass:
         ''', (current_month, current_year))
         total_tickets = self.cur.fetchone()
 
-
+        calls_abertos = [call for call in calls if calls ]
+        calls_breves= []
+        calls_vencidos = []
+        
         ticketData = {
             'Info_Geral':{
                 'N_Tickets_Recentes':0, 
@@ -278,8 +284,10 @@ class dbClass:
                 'N_Tickets_Ultimo_Mes': n_tickets_last_month[0], 
                 'N_Tickets_Total': total_tickets[0]
             },
-            'Lista_1': calls,
-            'Lista_2': []
+            'Lista_Abertos': calls_abertos,
+            'Lista_Breve': calls_breves,
+            'Lista_Vencidos': calls_vencidos
+
         }
 
         return ticketData        
