@@ -226,6 +226,9 @@ class dbClass:
         calls = []
         for i in range(n):
             value = self.cur.fetchone()
+
+
+
             calls.append({
                 'N': i,
                 'ID': value[1],
@@ -234,13 +237,13 @@ class dbClass:
                 'Status': value[4],
                 'Categoria': value[5],
                 'subcategory': value[6],
-                'Data_Alvo_SLA': value[7],
-                'Data_Alvo_Resp': value[8],
+                'Data_Alvo_SLA': None if value[7] == None else value[7].strftime("%-d/%-m/%Y %H:%M:%S"),
+                'Data_Alvo_Resp': None if value[8] == None else value[8].strftime("%-d/%-m/%Y %H:%M:%S"),
                 'Respondido': value[9],
-                'Data_Resp': value[10],
-                'Hora_Falha': value[11],
-                'Hora_Normalizacao': value[12],
-                'Data_do_Registro': value[13],
+                'Data_Resp': value[10].strftime("%-d/%-m/%Y %H:%M:%S"),
+                'Hora_Falha': None if value[11] == None else value[11].strftime("%H:%M:%S %-d/%-m/%Y"),
+                'Hora_Normalizacao': None if value[12] == None else value[12].strftime("%H:%M:%S %-d/%-m/%Y"),
+                'Data_do_Registro': None if value[13] == None else value[13].strftime("%-d/%-m/%Y %H:%M:%S"),
                 'Breve_Descricao': value[14],
                 'Pausa_SLA_inicio': value[15],
                 'Pausa_SLA_FIM': value[16],
