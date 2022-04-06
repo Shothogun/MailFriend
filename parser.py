@@ -51,13 +51,17 @@ def parseEmailCall(lines):
 
     soup = BeautifulSoup(msg_content, 'html.parser')
 
-    # print(soup.prettify())
     fields = [a.string for a in soup.find_all(attrs={"width": "3D\"200\""})]
     values = [a.contents[0] for a in soup.find_all(attrs={"width": "3D\"410\""})]
 
+    if len(values) == 0:
+        fields = [a.string for a in soup.find_all(attrs={"width": "200"})]
+        values = [a.contents[0] for a in soup.find_all(attrs={"width": "410"})]
+
+    # print(soup.prettify())
+
     fields.append('callmaildate')
     values.append(date)
-
     return fields, values
 
 

@@ -42,7 +42,7 @@ def mail_fetch():
     index = len(mails)
 
     # server.retr function can get the contents of the email with index variable value index number.
-    amount = int(input("How many last recently received emails? "))
+    amount = 30
 
     calls = []
 
