@@ -68,7 +68,7 @@ def mail_fetch():
 
 def main():
     mail_fetch()
-
+    print(datetime.now())
 
 if __name__ == "__main__":
     main()
