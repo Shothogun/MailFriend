@@ -40,3 +40,9 @@ to be able to be fetch by external programs.
 - Calls GET path: `http://127.0.0.1:5000/calls?amount=n`, where `n` is the 
 amount of emails to fetch.
 
+## Environment variables
+
+`MAIL_USERNAME`: Email username on mail login
+`MAIL_PASSWORD`: Email password on mail login
+`POP3_SERVER`: Email POP3 Server
+`CONFIG_PATH`: Path where the file of database connections configuration is set.

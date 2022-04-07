@@ -23,7 +23,7 @@ class dbClass:
         try:
             # read connection parameters
             params = config(filename=os.environ['CONFIG_PATH'])
-
+            
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
             self.conn = psycopg2.connect(**params)
@@ -250,7 +250,7 @@ class dbClass:
                 # 'Data_Alvo_SLA': None if value[7] == None else value[7].strftime("%-d/%-m/%Y %H:%M:%S"),
                 # 'Data_Alvo_Resp': None if value[8] == None else value[8].strftime("%-d/%-m/%Y %H:%M:%S"),
                 'Respondido':
-                value[9],
+                "Sim" if value[9] else "Não", 
                 # 'Data_Resp': value[10].strftime("%-d/%-m/%Y %H:%M:%S"),
                 'Hora_Falha':
                 None if value[11] == None else
@@ -293,8 +293,8 @@ class dbClass:
         calls_vencidos = [call[0] for call in calls if call[1] == 'V']
 
         aberto_size = len(calls_abertos)
-        breve_size = len(calls_abertos)
-        vencido_size = len(calls_abertos)
+        breve_size = len(calls_breves)
+        vencido_size = len(calls_vencidos)
         total_size = aberto_size + breve_size + vencido_size
 
         ticketData = {

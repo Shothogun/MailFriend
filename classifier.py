@@ -18,7 +18,17 @@ def classifyTicket(call):
   ticketDate = commercialBeginDate(ticketDate)
   # Vencido
   timeDiference = datetime.now() - ticketDate
-  call['Tempo_Restante'] = "%d dia(s) e %dh".format(timeDiference.days, secondsToHours(timeDiference.seconds))
+  deadline = commercialBeginDate(ticketDate + timedelta(hours=8))
+
+  remainingTime = deadline - datetime.now()
+
+  if remainingTime.days == None:
+    call['Tempo_Restante'] = "{}h".format(secondsToHours(remainingTime.seconds))
+  elif remainingTime.seconds == None or remainingTime.days < 0:
+    call['Tempo_Restante'] = "Vencido!"
+  else:
+    call['Tempo_Restante'] = "{} dia(s) e {}h".format(remainingTime.days,secondsToHours(remainingTime.seconds))
+
   if timeDiference.days > 1:
     return (call, 'V')
   # Contagem de horas de um dia pro outro:
