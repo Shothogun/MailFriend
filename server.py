@@ -11,7 +11,7 @@ def get_emails():
     amount = request.args.get('amount')
     
     if amount == None:
-        amount = 10
+        amount = 100
     else:
         amount = int(amount)
 

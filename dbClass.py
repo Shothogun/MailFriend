@@ -4,8 +4,11 @@ import psycopg2
 from psycopg2 import sql
 from config import config
 from datetime import date, datetime
+from classifier import classifyTicket
+
 
 class dbClass:
+
     def __init__(self):
         self.conn = None
         self.cur = None
@@ -115,8 +118,7 @@ class dbClass:
                    call['answerdate'], call['conectivityfailtime'],
                    call['conectivitynormalizationtime'], call['registerdate'],
                    call['description'], call['slapausebeginningdate'],
-                   call['slapausefinishdate'], callID,
-                   call['callmaildate']))
+                   call['slapausefinishdate'], callID, call['callmaildate']))
 
         self.conn.commit()
 
@@ -214,7 +216,7 @@ class dbClass:
         self.cur.execute('''
             SELECT * FROM calllogs where callcode = {0} AND
             callmaildate = {1};
-        '''.format(code,date))
+        '''.format(code, date))
 
         if self.cur.fetchone() == None:
             return False
@@ -233,24 +235,40 @@ class dbClass:
                 continue
 
             calls.append({
-                'N': i,
-                'ID': value[1],
-                'Organização': value[2],
-                'Tipo': value[3],
-                'Status': value[4],
-                'Categoria': value[5],
-                'subcategory': value[6],
-                'Data_Alvo_SLA': None if value[7] == None else value[7].strftime("%-d/%-m/%Y %H:%M:%S"),
-                'Data_Alvo_Resp': None if value[8] == None else value[8].strftime("%-d/%-m/%Y %H:%M:%S"),
-                'Respondido': value[9],
-                'Data_Resp': value[10].strftime("%-d/%-m/%Y %H:%M:%S"),
-                'Hora_Falha': None if value[11] == None else value[11].strftime("%H:%M:%S %-d/%-m/%Y"),
-                'Hora_Normalizacao': None if value[12] == None else value[12].strftime("%H:%M:%S %-d/%-m/%Y"),
-                'Data_do_Registro': None if value[13] == None else value[13].strftime("%-d/%-m/%Y %H:%M:%S"),
-                'Breve_Descricao': value[14],
-                'Pausa_SLA_inicio': value[15],
-                'Pausa_SLA_FIM': value[16],
-                'Tempo_Restante': 0
+                'N':
+                i,
+                'ID':
+                value[1],
+                'Organização':
+                value[2],
+                'Tipo':
+                value[3],
+                'Status':
+                value[4],
+                # 'Categoria': value[5],
+                # 'subcategory': value[6],
+                # 'Data_Alvo_SLA': None if value[7] == None else value[7].strftime("%-d/%-m/%Y %H:%M:%S"),
+                # 'Data_Alvo_Resp': None if value[8] == None else value[8].strftime("%-d/%-m/%Y %H:%M:%S"),
+                'Respondido':
+                value[9],
+                # 'Data_Resp': value[10].strftime("%-d/%-m/%Y %H:%M:%S"),
+                'Hora_Falha':
+                None if value[11] == None else
+                value[11].strftime("%H:%M:%S %-d/%-m/%Y"),
+                'Hora_Normalizacao':
+                None if value[12] == None else
+                value[12].strftime("%H:%M:%S %-d/%-m/%Y"),
+                'Data_do_Registro':
+                None if value[13] == None else
+                value[13].strftime("%-d/%-m/%Y %H:%M:%S"),
+                'Breve_Descricao':
+                value[14],
+                'Pausa_SLA_inicio':
+                value[15],
+                'Pausa_SLA_FIM':
+                value[16],
+                'Tempo_Restante':
+                0
             })
 
         return calls
@@ -261,33 +279,35 @@ class dbClass:
         current_month = datetime.now().month
         current_year = datetime.now().year
 
-        self.cur.execute('''SELECT COUNT(*) FROM calls 
+        self.cur.execute(
+            '''SELECT COUNT(*) FROM calls 
                             WHERE registerdate >= '1/%s/%s' 
         ''', (current_month, current_year))
         n_tickets_last_month = self.cur.fetchone()
 
-        self.cur.execute('''SELECT COUNT(*) FROM calls 
-                            WHERE status != 'Fechado' 
-        ''', (current_month, current_year))
-        total_tickets = self.cur.fetchone()
+        calls = [(classifyTicket(call))
+                 for call in calls]
 
-        calls_abertos = [call for call in calls if calls ]
-        calls_breves= []
-        calls_vencidos = []
-        
+        calls_abertos = [call[0] for call in calls if call[1] == 'A']
+        calls_breves = [call[0] for call in calls if call[1] == 'B']
+        calls_vencidos = [call[0] for call in calls if call[1] == 'V']
+
+        aberto_size = len(calls_abertos)
+        breve_size = len(calls_abertos)
+        vencido_size = len(calls_abertos)
+        total_size = aberto_size + breve_size + vencido_size
+
         ticketData = {
-            'Info_Geral':{
-                'N_Tickets_Recentes':0, 
-                'N_Tickets_Meia_Vida':0, 
-                'N_Tickets_Perto_Vencer':0, 
-                'N_Tickets_Vencidos':0, 
-                'N_Tickets_Ultimo_Mes': n_tickets_last_month[0], 
-                'N_Tickets_Total': total_tickets[0]
+            'Info_Geral': {
+                'N_Tickets_Recentes': aberto_size,
+                'N_Tickets_Perto_Vencer': breve_size,
+                'N_Tickets_Vencidos': vencido_size,
+                'N_Tickets_Ultimo_Mes': n_tickets_last_month[0],
+                'N_Tickets_Total': total_size
             },
             'Lista_Abertos': calls_abertos,
             'Lista_Breve': calls_breves,
             'Lista_Vencidos': calls_vencidos
-
         }
 
-        return ticketData        
+        return ticketData
