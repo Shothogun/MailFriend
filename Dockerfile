@@ -7,6 +7,9 @@ COPY ./requirements.txt /app/requirements.txt
 # switch working directory
 WORKDIR /app
 
+RUN apk update && apk add tzdata
+ENV TZ=America/Sao_Paulo
+
 # install the dependencies and packages in the requirements file
 RUN sed -i 's/https/http/' /etc/apk/repositories
 RUN apk update && apk add postgresql-dev gcc python3-dev musl-dev
