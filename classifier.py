@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import os
 
 def secondsToHours(seconds: int):
@@ -13,40 +13,65 @@ def commercialBeginDate(date: datetime):
   else:
     return date
 
+def commercialTimePassed(previousDate: datetime, now: datetime):
+  total = 0
+  current_date = previousDate
+  # TODO raise error with day after today
+
+  # Count previous days hours
+  while current_date.day != now.day:
+    day_deadline = datetime(current_date.year, current_date.month,
+                            current_date.day, 18, 0 ,0)
+    total += secondsToHours((day_deadline - current_date).seconds)
+
+    current_date += timedelta(days=1)
+    current_date = datetime(current_date.year, current_date.month,
+                            current_date.day, 8, 0 ,0)
+
+  total += secondsToHours((now - current_date).seconds)
+
+  return total
+
 def classifyTicket(call):
   ticketDate = datetime.strptime(call['Data_do_Registro'], "%d/%m/%Y %H:%M:%S")
   ticketDate = commercialBeginDate(ticketDate)
-  # Vencido
-  timeDiference = datetime.now() - ticketDate
-  deadline = commercialBeginDate(ticketDate + timedelta(hours=8))
 
-  remainingTime = deadline - datetime.now()
+  timeLeft = 8 - commercialTimePassed(ticketDate, datetime.now())
 
-  if remainingTime.days == None:
-    call['Tempo_Restante'] = "{}h".format(secondsToHours(remainingTime.seconds))
-  elif remainingTime.seconds == None or remainingTime.days < 0:
-    call['Tempo_Restante'] = "Vencido!"
+  if timeLeft <= 0:
+    return (call, 'V')
+  elif 0 < timeLeft <= 2:
+    return (call, 'B')
   else:
-    call['Tempo_Restante'] = "{} dia(s) e {}h".format(remainingTime.days,secondsToHours(remainingTime.seconds))
+    return (call, 'A')
+  
 
-  if timeDiference.days > 1:
-    return (call, 'V')
-  # Contagem de horas de um dia pro outro:
-  # horas decorridas menos as horas entre 
-  # as 18h e as 8h
-  elif timeDiference.days == 1 and \
-        (secondsToHours(timeDiference.seconds)-14) > 8:
-    return (call, 'V')
-  elif timeDiference.days == 1 and \
-        2 < (secondsToHours(timeDiference.seconds)-14) <= 8:
-    return (call, 'A')
-  elif timeDiference.days == 1 and \
-        (secondsToHours(timeDiference.seconds)-14) < 2:
-    return (call, 'B')
-  elif timeDiference.days == 0 and \
-        secondsToHours(timeDiference.seconds) > 8:
-    return (call, 'V')
-  elif 2 < secondsToHours(timeDiference.seconds) <= 8:
-    return (call, 'A')
-  elif secondsToHours(timeDiference.seconds) < 2:
-    return (call, 'B')
+def updateRemainingTime(call_tuple):
+  call, callClass = call_tuple
+
+  if callClass == 'V':
+    call['Tempo_Restante'] = "Vencido!"
+    return (call,callClass)
+
+  ticketDate = datetime.strptime(call['Data_do_Registro'], "%d/%m/%Y %H:%M:%S")
+  ticketDate = commercialBeginDate(ticketDate)
+
+  total_hours = 8
+
+  deadline = ticketDate
+
+  while total_hours > 0:
+    deadline += timedelta(hours=1)
+    if deadline.hour == 18:
+      deadline = deadline + timedelta(days=1)
+      deadline = datetime(deadline.year, deadline.month,
+                          deadline.day, 8, deadline.minute ,deadline.second)
+    total_hours -= 1
+
+  timeLeft = commercialTimePassed(datetime.now(), deadline)
+  daysLeft = timeLeft//8
+  hoursLeft = timeLeft%8
+
+  call['Tempo_Restante'] = "{} dia(s) e {}h".format(daysLeft,hoursLeft)
+
+  return (call,callClass)

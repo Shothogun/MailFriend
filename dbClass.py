@@ -4,7 +4,7 @@ import psycopg2
 from psycopg2 import sql
 from config import config
 from datetime import date, datetime
-from classifier import classifyTicket
+from classifier import classifyTicket, updateRemainingTime
 
 
 class dbClass:
@@ -76,7 +76,6 @@ class dbClass:
             else:
                 call[tt] = 'timestamp ' + call[tt]
 
-        print(call)
         self.cur.execute('''
             INSERT INTO 
                 calls
@@ -286,6 +285,9 @@ class dbClass:
         n_tickets_last_month = self.cur.fetchone()
 
         calls = [(classifyTicket(call))
+                 for call in calls]
+
+        calls = [(updateRemainingTime(call))
                  for call in calls]
 
         calls_abertos = [call[0] for call in calls if call[1] == 'A']
