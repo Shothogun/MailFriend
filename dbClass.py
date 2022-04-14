@@ -251,21 +251,21 @@ class dbClass:
                 'Respondido':
                 "Sim" if value[9] else "Não", 
                 # 'Data_Resp': value[10].strftime("%-d/%-m/%Y %H:%M:%S"),
-                'Hora_Falha':
-                None if value[11] == None else
-                value[11].strftime("%H:%M:%S %-d/%-m/%Y"),
-                'Hora_Normalizacao':
-                None if value[12] == None else
-                value[12].strftime("%H:%M:%S %-d/%-m/%Y"),
+                # 'Hora_Falha':
+                # None if value[11] == None else
+                # value[11].strftime("%H:%M:%S %-d/%-m/%Y"),
+                # 'Hora_Normalizacao':
+                # None if value[12] == None else
+                # value[12].strftime("%H:%M:%S %-d/%-m/%Y"),
                 'Data_do_Registro':
                 None if value[13] == None else
                 value[13].strftime("%-d/%-m/%Y %H:%M:%S"),
                 'Breve_Descricao':
                 value[14],
-                'Pausa_SLA_inicio':
-                value[15],
-                'Pausa_SLA_FIM':
-                value[16],
+                # 'Pausa_SLA_inicio':
+                # value[15],
+                # 'Pausa_SLA_FIM':
+                # value[16],
                 'Tempo_Restante':
                 0
             })
