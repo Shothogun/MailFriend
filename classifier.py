@@ -1,9 +1,8 @@
 from datetime import date, datetime, timedelta
 import os
 
-
-def deadline_compute(ticketDate: datetime):
-    deadline = ticketDate
+def deadline_compute(ticket_date: datetime):
+    deadline = ticket_date
 
     total_hours = 8
 
@@ -53,11 +52,11 @@ def commercialTimePassed(previousDate: datetime, now: datetime):
 
 
 def classifyTicket(call):
-    ticketDate = datetime.strptime(call['Data_do_Registro'],
+    ticket_date = datetime.strptime(call['Data_do_Registro'],
                                    "%d/%m/%Y %H:%M:%S")
-    ticketDate = commercialBeginDate(ticketDate)
+    ticket_date = commercialBeginDate(ticket_date)
 
-    deadline = deadline_compute(ticketDate)
+    deadline = deadline_compute(ticket_date)
 
     timeLeft = commercialTimePassed(datetime.now(), deadline)
 
@@ -74,26 +73,27 @@ def classifyTicket(call):
 
 
 def updateRemainingTime(call_tuple):
-    call, callClass = call_tuple
+    call, call_class = call_tuple
 
-    if callClass == 'V':
+    if call_class == 'V':
         call['Tempo_Restante'] = "Vencido!"
-        return (call, callClass)
+        return (call, call_class)
 
-    ticketDate = datetime.strptime(call['Data_do_Registro'],
+    ticket_date = datetime.strptime(call['Data_do_Registro'],
                                    "%d/%m/%Y %H:%M:%S")
-    ticketDate = commercialBeginDate(ticketDate)
+    ticket_date = commercialBeginDate(ticket_date)
 
-    deadline = deadline_compute(ticketDate)
+    deadline = deadline_compute(ticket_date)
 
-    timeLeft = commercialTimePassed(datetime.now(), deadline)
-    daysLeft = timeLeft // 8
-    hoursLeft = timeLeft % 8
+    time_left = commercialTimePassed(datetime.now(), deadline)
+    days_left = time_left // 8
+    hours_left = time_left % 8
 
     if((deadline -  datetime.now()).days < 0):
-      daysLeft = 0
-      hoursLeft = 0
+      days_left = 0
+      hours_left = 0
 
-    call['Tempo_Restante'] = "{} dia(s) e {}h".format(daysLeft, hoursLeft)
+    call['Tempo_Restante'] = "{} dia(s) e {}h".format(days_left, hours_left)
 
-    return (call, callClass)
+    return (call, call_class)
+

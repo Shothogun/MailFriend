@@ -211,6 +211,19 @@ class dbClass:
         else:
             return True
 
+    def closedCallExists(self, code):
+        code.replace('\'', '')
+        self.cur.execute('''
+            SELECT * FROM calls where callcode = '{0}'
+            AND status != 'Fechado';
+        '''.format(code))
+
+        if self.cur.fetchone() == None:
+            return False
+        else:
+            return True
+
+
     def callLogExists(self, code, date):
         self.cur.execute('''
             SELECT * FROM calllogs where callcode = {0} AND
@@ -222,6 +235,26 @@ class dbClass:
         else:
             return True
 
+
+    def ticketPriorityClassify(self, ticket):
+        if ticket['subcategory'] == "Indisponibilidade":
+            return "Alta"
+
+        db = dbClass()
+
+        db.connect()
+
+        exists = db.closedCallExists(ticket['ID'])
+
+        db.close()
+
+        if exists:
+            return "Medio"
+
+        else: 
+            return "Baixo"
+
+
     def pullCalls(self, n: int):
         self.cur.execute('''SELECT * FROM calls 
                             WHERE status != 'Fechado' ''')
@@ -229,46 +262,73 @@ class dbClass:
         calls = []
 
         for i in range(n):
-            value = self.cur.fetchone()
-            if value == None:
+            ticket = self.cur.fetchone()
+            if ticket == None:
                 continue
 
-            calls.append({
+            ticket_parsed = {
                 'N':
                 i,
                 'ID':
-                value[1],
+                ticket[1],
                 'Organização':
-                value[2],
+                ticket[2],
                 'Tipo':
-                value[3],
+                ticket[3],
                 'Status':
-                value[4],
-                # 'Categoria': value[5],
-                # 'subcategory': value[6],
-                # 'Data_Alvo_SLA': None if value[7] == None else value[7].strftime("%-d/%-m/%Y %H:%M:%S"),
-                # 'Data_Alvo_Resp': None if value[8] == None else value[8].strftime("%-d/%-m/%Y %H:%M:%S"),
+                ticket[4],
+                'Categoria': ticket[5],
+                'subcategory': ticket[6],
+                'Data_Alvo_SLA': None if ticket[7] == None else ticket[7].strftime("%-d/%-m/%Y %H:%M:%S"),
+                'Data_Alvo_Resp': None if ticket[8] == None else ticket[8].strftime("%-d/%-m/%Y %H:%M:%S"),
                 'Respondido':
-                "Sim" if value[9] else "Não", 
-                # 'Data_Resp': value[10].strftime("%-d/%-m/%Y %H:%M:%S"),
-                # 'Hora_Falha':
-                # None if value[11] == None else
-                # value[11].strftime("%H:%M:%S %-d/%-m/%Y"),
-                # 'Hora_Normalizacao':
-                # None if value[12] == None else
-                # value[12].strftime("%H:%M:%S %-d/%-m/%Y"),
+                "Sim" if ticket[9] else "Não", 
+                'Data_Resp': ticket[10].strftime("%-d/%-m/%Y %H:%M:%S"),
+                'Hora_Falha':
+                None if ticket[11] == None else
+                ticket[11].strftime("%H:%M:%S %-d/%-m/%Y"),
+                'Hora_Normalizacao':
+                None if ticket[12] == None else
+                ticket[12].strftime("%H:%M:%S %-d/%-m/%Y"),
                 'Data_do_Registro':
-                None if value[13] == None else
-                value[13].strftime("%-d/%-m/%Y %H:%M:%S"),
+                None if ticket[13] == None else
+                ticket[13].strftime("%-d/%-m/%Y %H:%M:%S"),
                 'Breve_Descricao':
-                value[14],
-                # 'Pausa_SLA_inicio':
-                # value[15],
-                # 'Pausa_SLA_FIM':
-                # value[16],
+                ticket[14],
+                'Pausa_SLA_inicio':
+                ticket[15],
+                'Pausa_SLA_FIM':
+                ticket[16],
                 'Tempo_Restante':
                 0
-            })
+            }
+
+            priority = self.ticketPriorityClassify(ticket_parsed)
+
+            call = {
+                'N':
+                i,
+                'ID':
+                ticket_parsed['ID'],
+                'Organização':
+                ticket_parsed['Organização'],
+                'Tipo':
+                ticket_parsed['Tipo'],
+                'Status':
+                ticket_parsed['Status'],
+                'Respondido':
+                ticket_parsed['Respondido'], 
+                'Data_do_Registro':
+                ticket_parsed['Data_do_Registro'],
+                'Breve_Descricao':
+                ticket_parsed['Breve_Descricao'],
+                'Tempo_Restante':
+                0,
+                'Prioridade':
+                priority
+            }
+
+            calls.append(call)
 
         return calls
 
