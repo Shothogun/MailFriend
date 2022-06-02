@@ -1,5 +1,6 @@
 from datetime import date, datetime, timedelta
-import os
+from workadays import workdays as wd
+
 
 def deadline_compute(ticket_date: datetime):
     deadline = ticket_date
@@ -8,7 +9,7 @@ def deadline_compute(ticket_date: datetime):
 
     while total_hours > 0:
         deadline += timedelta(hours=1)
-        if deadline.hour == 18:
+        if deadline.hour == 18 or not (wd.is_workday(deadline, country='BR')):
             deadline = deadline + timedelta(days=1)
             deadline = datetime(deadline.year, deadline.month, deadline.day, 8,
                                 deadline.minute, deadline.second)
@@ -53,17 +54,16 @@ def commercialTimePassed(previousDate: datetime, now: datetime):
 
 def classifyTicket(call):
     ticket_date = datetime.strptime(call['Data_do_Registro'],
-                                   "%d/%m/%Y %H:%M:%S")
+                                    "%d/%m/%Y %H:%M:%S")
     ticket_date = commercialBeginDate(ticket_date)
 
     deadline = deadline_compute(ticket_date)
 
     timeLeft = commercialTimePassed(datetime.now(), deadline)
 
+    if ((deadline - datetime.now()).days < 0):
+        timeLeft = 0
 
-    if((deadline -  datetime.now()).days < 0):
-      timeLeft = 0
-      
     if timeLeft <= 0:
         return (call, 'V')
     elif 0 < timeLeft <= 2:
@@ -80,7 +80,7 @@ def updateRemainingTime(call_tuple):
         return (call, call_class)
 
     ticket_date = datetime.strptime(call['Data_do_Registro'],
-                                   "%d/%m/%Y %H:%M:%S")
+                                    "%d/%m/%Y %H:%M:%S")
     ticket_date = commercialBeginDate(ticket_date)
 
     deadline = deadline_compute(ticket_date)
@@ -89,11 +89,10 @@ def updateRemainingTime(call_tuple):
     days_left = time_left // 8
     hours_left = time_left % 8
 
-    if((deadline -  datetime.now()).days < 0):
-      days_left = 0
-      hours_left = 0
+    if ((deadline - datetime.now()).days < 0):
+        days_left = 0
+        hours_left = 0
 
     call['Tempo_Restante'] = "{} dia(s) e {}h".format(days_left, hours_left)
 
     return (call, call_class)
-
