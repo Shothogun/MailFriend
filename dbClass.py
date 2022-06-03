@@ -23,7 +23,7 @@ class dbClass:
         try:
             # read connection parameters
             params = config(filename=os.environ['CONFIG_PATH'])
-            
+
             # connect to the PostgreSQL server
             print('Connecting to the PostgreSQL database...')
             self.conn = psycopg2.connect(**params)
@@ -215,14 +215,14 @@ class dbClass:
         code.replace('\'', '')
         self.cur.execute('''
             SELECT * FROM calls where callcode = '{0}'
-            AND status != 'Fechado';
+            AND status != 'Fechado'  AND
+            status != 'Encaminhado';
         '''.format(code))
 
         if self.cur.fetchone() == None:
             return False
         else:
             return True
-
 
     def callLogExists(self, code, date):
         self.cur.execute('''
@@ -234,7 +234,6 @@ class dbClass:
             return False
         else:
             return True
-
 
     def ticketPriorityClassify(self, ticket):
         if ticket['subcategory'] == "Indisponibilidade":
@@ -251,13 +250,13 @@ class dbClass:
         if exists:
             return "Medio"
 
-        else: 
+        else:
             return "Baixo"
-
 
     def pullCalls(self, n: int):
         self.cur.execute('''SELECT * FROM calls 
-                            WHERE status != 'Fechado' ''')
+                            WHERE status != 'Fechado' AND
+                            status != 'Encaminhado' ''')
 
         calls = []
 
@@ -277,13 +276,20 @@ class dbClass:
                 ticket[3],
                 'Status':
                 ticket[4],
-                'Categoria': ticket[5],
-                'subcategory': ticket[6],
-                'Data_Alvo_SLA': None if ticket[7] == None else ticket[7].strftime("%-d/%-m/%Y %H:%M:%S"),
-                'Data_Alvo_Resp': None if ticket[8] == None else ticket[8].strftime("%-d/%-m/%Y %H:%M:%S"),
+                'Categoria':
+                ticket[5],
+                'subcategory':
+                ticket[6],
+                'Data_Alvo_SLA':
+                None if ticket[7] == None else
+                ticket[7].strftime("%-d/%-m/%Y %H:%M:%S"),
+                'Data_Alvo_Resp':
+                None if ticket[8] == None else
+                ticket[8].strftime("%-d/%-m/%Y %H:%M:%S"),
                 'Respondido':
-                "Sim" if ticket[9] else "Não", 
-                'Data_Resp': ticket[10].strftime("%-d/%-m/%Y %H:%M:%S"),
+                "Sim" if ticket[9] else "Não",
+                'Data_Resp':
+                ticket[10].strftime("%-d/%-m/%Y %H:%M:%S"),
                 'Hora_Falha':
                 None if ticket[11] == None else
                 ticket[11].strftime("%H:%M:%S %-d/%-m/%Y"),
@@ -306,26 +312,16 @@ class dbClass:
             priority = self.ticketPriorityClassify(ticket_parsed)
 
             call = {
-                'N':
-                i,
-                'ID':
-                ticket_parsed['ID'],
-                'Organização':
-                ticket_parsed['Organização'],
-                'Tipo':
-                ticket_parsed['Tipo'],
-                'Status':
-                ticket_parsed['Status'],
-                'Respondido':
-                ticket_parsed['Respondido'], 
-                'Data_do_Registro':
-                ticket_parsed['Data_do_Registro'],
-                'Breve_Descricao':
-                ticket_parsed['Breve_Descricao'],
-                'Tempo_Restante':
-                0,
-                'Prioridade':
-                priority
+                'N': i,
+                'ID': ticket_parsed['ID'],
+                'Organização': ticket_parsed['Organização'],
+                'Tipo': ticket_parsed['Tipo'],
+                'Status': ticket_parsed['Status'],
+                'Respondido': ticket_parsed['Respondido'],
+                'Data_do_Registro': ticket_parsed['Data_do_Registro'],
+                'Breve_Descricao': ticket_parsed['Breve_Descricao'],
+                'Tempo_Restante': 0,
+                'Prioridade': priority
             }
 
             calls.append(call)
@@ -344,11 +340,9 @@ class dbClass:
         ''', (current_month, current_year))
         n_tickets_last_month = self.cur.fetchone()
 
-        calls = [(classifyTicket(call))
-                 for call in calls]
+        calls = [(classifyTicket(call)) for call in calls]
 
-        calls = [(updateRemainingTime(call))
-                 for call in calls]
+        calls = [(updateRemainingTime(call)) for call in calls]
 
         calls_abertos = [call[0] for call in calls if call[1] == 'A']
         calls_breves = [call[0] for call in calls if call[1] == 'B']
