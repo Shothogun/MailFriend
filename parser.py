@@ -44,7 +44,7 @@ def parseEmailCall(lines):
     msg_content = msg_content.replace('=FB', 'û')
 
     msg_content = msg_content.replace('=\r\n', '')
-    date = re.search(r"Date: (.*)\r", msg_content).groups()[0][5:-12]
+    date = re.search(r"Date: (.*)\r", msg_content).groups()[0][5:24]
     date = datetime.strptime(date, "%d %b %Y %H:%M:%S")
     timezone = pytz.timezone("UTC")
     date = timezone.localize(date).astimezone(pytz.timezone("America/Sao_Paulo"))

@@ -6,7 +6,6 @@ from config import config
 from datetime import date, datetime
 from classifier import classifyTicket, updateRemainingTime
 
-
 class dbClass:
 
     def __init__(self):
@@ -359,7 +358,8 @@ class dbClass:
                 'N_Tickets_Perto_Vencer': breve_size,
                 'N_Tickets_Vencidos': vencido_size,
                 'N_Tickets_Ultimo_Mes': n_tickets_last_month[0],
-                'N_Tickets_Total': total_size
+                'N_Tickets_Total': total_size,
+                'Ultimo_Fetch': datetime.now().strftime('%H:%M:%S %d/%m')
             },
             'Lista_Abertos': calls_abertos,
             'Lista_Breve': calls_breves,

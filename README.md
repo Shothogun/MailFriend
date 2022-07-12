@@ -33,7 +33,7 @@ to be able to be fetch by external programs.
 
 - Run container:
 
-```$ docker run -e CONFIG_PATH=database.ini -p 5000:5000 -d flask_docker ```
+```$ docker run --restart=always -e CONFIG_PATH=database.ini -p 5000:5000 -d flask_docker ```
 
 ## Routes
 
