@@ -6,6 +6,7 @@ from config import config
 from datetime import date, datetime
 from classifier import classifyTicket, updateRemainingTime
 
+
 class dbClass:
 
     def __init__(self):
@@ -75,50 +76,55 @@ class dbClass:
             else:
                 call[tt] = 'timestamp ' + call[tt]
 
-        self.cur.execute('''
-            INSERT INTO 
-                calls
-                (callcode, organization, calltype, status,
-                 category, subcategory, slaaimdate, answeraimdate,
-                 answered, answerdate, conectivityfailtime, conectivitynormalizationtime,
-                 registerdate, description, slapausebeginningdate, slapausefinishdate)
-            VALUES
-                ({0}, {1}, {2}, {3},
-                 {4}, {5}, {6}, {7},
-                 {8}, {9}, {10}, {11},
-                 {12}, {13}, {14}, {15});
-        '''.format(call['callcode'], call['organization'], call['calltype'],
-                   call['status'], call['category'], call['subcategory'],
-                   call['slaaimdate'], call['answeraimdate'], call['answered'],
-                   call['answerdate'], call['conectivityfailtime'],
-                   call['conectivitynormalizationtime'], call['registerdate'],
-                   call['description'], call['slapausebeginningdate'],
-                   call['slapausefinishdate']))
+        try:
 
-        callID = self.getCallIDByCode(call['callcode'].replace('\'', ''))
+            self.cur.execute('''
+                INSERT INTO 
+                    calls
+                    (callcode, organization, calltype, status,
+                    category, subcategory, slaaimdate, answeraimdate,
+                    answered, answerdate, conectivityfailtime, conectivitynormalizationtime,
+                    registerdate, description, slapausebeginningdate, slapausefinishdate)
+                VALUES
+                    ({0}, {1}, {2}, {3},
+                    {4}, {5}, {6}, {7},
+                    {8}, {9}, {10}, {11},
+                    {12}, {13}, {14}, {15});
+            '''.format(call['callcode'], call['organization'], call['calltype'],
+                    call['status'], call['category'], call['subcategory'],
+                    call['slaaimdate'], call['answeraimdate'], call['answered'],
+                    call['answerdate'], call['conectivityfailtime'],
+                    call['conectivitynormalizationtime'], call['registerdate'],
+                    call['description'], call['slapausebeginningdate'],
+                    call['slapausefinishdate']))
 
-        self.cur.execute('''
-            INSERT INTO 
-                calllogs
-                (callcode, organization, calltype, status,
-                 category, subcategory, slaaimdate, answeraimdate,
-                 answered, answerdate, conectivityfailtime, conectivitynormalizationtime,
-                 registerdate, description, slapausebeginningdate, 
-                 slapausefinishdate, callid, callmaildate)
-            VALUES
-                ({0}, {1}, {2}, {3},
-                 {4}, {5}, {6}, {7},
-                 {8}, {9}, {10}, {11},
-                 {12}, {13}, {14}, {15}, {16}, {17});
-        '''.format(call['callcode'], call['organization'], call['calltype'],
-                   call['status'], call['category'], call['subcategory'],
-                   call['slaaimdate'], call['answeraimdate'], call['answered'],
-                   call['answerdate'], call['conectivityfailtime'],
-                   call['conectivitynormalizationtime'], call['registerdate'],
-                   call['description'], call['slapausebeginningdate'],
-                   call['slapausefinishdate'], callID, call['callmaildate']))
+            callID = self.getCallIDByCode(call['callcode'].replace('\'', ''))
 
-        self.conn.commit()
+            self.cur.execute('''
+                INSERT INTO 
+                    calllogs
+                    (callcode, organization, calltype, status,
+                    category, subcategory, slaaimdate, answeraimdate,
+                    answered, answerdate, conectivityfailtime, conectivitynormalizationtime,
+                    registerdate, description, slapausebeginningdate, 
+                    slapausefinishdate, callid, callmaildate)
+                VALUES
+                    ({0}, {1}, {2}, {3},
+                    {4}, {5}, {6}, {7},
+                    {8}, {9}, {10}, {11},
+                    {12}, {13}, {14}, {15}, {16}, {17});
+            '''.format(call['callcode'], call['organization'], call['calltype'],
+                    call['status'], call['category'], call['subcategory'],
+                    call['slaaimdate'], call['answeraimdate'], call['answered'],
+                    call['answerdate'], call['conectivityfailtime'],
+                    call['conectivitynormalizationtime'], call['registerdate'],
+                    call['description'], call['slapausebeginningdate'],
+                    call['slapausefinishdate'], callID, call['callmaildate']))
+
+            self.conn.commit()
+
+        except Exception:
+            pass
 
     def updateCall(self, call):
         callID = self.getCallIDByCode(call['callcode'].replace('\'', ''))
@@ -150,45 +156,53 @@ class dbClass:
             else:
                 call[tt] = 'timestamp ' + call[tt]
 
-        self.cur.execute('''
-            INSERT INTO 
-                calllogs
-                (callcode, organization, calltype, status,
-                 category, subcategory, slaaimdate, answeraimdate,
-                 answered, answerdate, conectivityfailtime, conectivitynormalizationtime,
-                 registerdate, description, slapausebeginningdate, 
-                 slapausefinishdate, callid, callmaildate)
-            VALUES
-                ({0}, {1}, {2}, {3},
-                 {4}, {5}, {6}, {7},
-                 {8}, {9}, {10}, {11},
-                 {12}, {13}, {14}, {15}, {16}, {17});
-        '''.format(call['callcode'], call['organization'], call['calltype'],
-                   call['status'], call['category'], call['subcategory'],
-                   call['slaaimdate'], call['answeraimdate'], call['answered'],
-                   call['answerdate'], call['conectivityfailtime'],
-                   call['conectivitynormalizationtime'], call['registerdate'],
-                   call['description'], call['slapausebeginningdate'],
-                   call['slapausefinishdate'], callID, call['callmaildate']))
+        try:
 
-        self.cur.execute('''
-            UPDATE calls
-            SET organization = {0}, calltype = {1}, status = {2}, category = {3}, 
-                subcategory = {4}, slaaimdate = {5}, answeraimdate = {6},
-                answered = {7}, answerdate = {8}, conectivityfailtime = {9}, 
-                conectivitynormalizationtime = {10}, registerdate = {11}, 
-                description = {12}, slapausebeginningdate = {13}, 
-                slapausefinishdate =  {14}
-            WHERE callcode = {15}
-        '''.format(call['organization'], call['calltype'], call['status'],
-                   call['category'], call['subcategory'], call['slaaimdate'],
-                   call['answeraimdate'], call['answered'], call['answerdate'],
-                   call['conectivityfailtime'],
-                   call['conectivitynormalizationtime'], call['registerdate'],
-                   call['description'], call['slapausebeginningdate'],
-                   call['slapausefinishdate'], call['callcode']))
+            self.cur.execute('''
+                INSERT INTO 
+                    calllogs
+                    (callcode, organization, calltype, status,
+                    category, subcategory, slaaimdate, answeraimdate,
+                    answered, answerdate, conectivityfailtime, conectivitynormalizationtime,
+                    registerdate, description, slapausebeginningdate, 
+                    slapausefinishdate, callid, callmaildate)
+                VALUES
+                    ({0}, {1}, {2}, {3},
+                    {4}, {5}, {6}, {7},
+                    {8}, {9}, {10}, {11},
+                    {12}, {13}, {14}, {15}, {16}, {17});
+            '''.format(
+                call['callcode'], call['organization'], call['calltype'],
+                call['status'], call['category'], call['subcategory'],
+                call['slaaimdate'], call['answeraimdate'], call['answered'],
+                call['answerdate'], call['conectivityfailtime'],
+                call['conectivitynormalizationtime'], call['registerdate'],
+                call['description'], call['slapausebeginningdate'],
+                call['slapausefinishdate'], callID, call['callmaildate']))
 
-        self.conn.commit()
+            self.cur.execute('''
+                UPDATE calls
+                SET organization = {0}, calltype = {1}, status = {2}, category = {3}, 
+                    subcategory = {4}, slaaimdate = {5}, answeraimdate = {6},
+                    answered = {7}, answerdate = {8}, conectivityfailtime = {9}, 
+                    conectivitynormalizationtime = {10}, registerdate = {11}, 
+                    description = {12}, slapausebeginningdate = {13}, 
+                    slapausefinishdate =  {14}
+                WHERE callcode = {15}
+            '''.format(call['organization'], call['calltype'], call['status'],
+                       call['category'], call['subcategory'],
+                       call['slaaimdate'], call['answeraimdate'],
+                       call['answered'], call['answerdate'],
+                       call['conectivityfailtime'],
+                       call['conectivitynormalizationtime'],
+                       call['registerdate'], call['description'],
+                       call['slapausebeginningdate'],
+                       call['slapausefinishdate'], call['callcode']))
+
+            self.conn.commit()
+
+        except Exception:
+            pass
 
     def getCallIDByCode(self, code):
         self.cur.execute(
