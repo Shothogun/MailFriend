@@ -1,9 +1,9 @@
-
 from dataclasses import field
 from bs4 import BeautifulSoup
-import re 
+import re
 from datetime import datetime
 import pytz
+
 
 def parseEmailCall(lines):
 
@@ -44,15 +44,23 @@ def parseEmailCall(lines):
     msg_content = msg_content.replace('=FB', 'û')
 
     msg_content = msg_content.replace('=\r\n', '')
+    msg_lines = msg_content.split('\n')
     date = re.search(r"Date: (.*)\r", msg_content).groups()[0][5:24]
     date = datetime.strptime(date, "%d %b %Y %H:%M:%S")
     timezone = pytz.timezone("UTC")
-    date = timezone.localize(date).astimezone(pytz.timezone("America/Sao_Paulo"))
+    date = timezone.localize(date).astimezone(
+        pytz.timezone("America/Sao_Paulo"))
 
     soup = BeautifulSoup(msg_content, 'html.parser')
+    email_from = ""
+
+    if (re.search(r"\(LHLO (.*)\)", msg_lines[1]) != None):
+        email_from = re.search(r"\(LHLO (.*)\)", msg_lines[1]).groups()[0]
 
     fields = [a.string for a in soup.find_all(attrs={"width": "3D\"200\""})]
-    values = [a.contents[0] for a in soup.find_all(attrs={"width": "3D\"410\""})]
+    values = [
+        a.contents[0] for a in soup.find_all(attrs={"width": "3D\"410\""})
+    ]
 
     if len(values) == 0:
         fields = [a.string for a in soup.find_all(attrs={"width": "200"})]
@@ -62,7 +70,8 @@ def parseEmailCall(lines):
 
     fields.append('callmaildate')
     values.append(date)
-    return fields, values
+
+    return fields, values, email_from
 
 
 def createCall(keys, values):
@@ -76,11 +85,14 @@ def createCall(keys, values):
     ]
 
     if len(values) < 6:
-        keys = ['callcode', 'registerdate', 'description', 'organization', 'callmaildate']
+        keys = [
+            'callcode', 'registerdate', 'description', 'organization',
+            'callmaildate'
+        ]
 
     for i in range(len(values)):
         if keys[i] == 'answered':
-            call[keys[i]] = True if values[i] == 'Yes' else False  
+            call[keys[i]] = True if values[i] == 'Yes' else False
         else:
             call[keys[i]] = '\'{0}\''.format(values[i])
 

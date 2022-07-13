@@ -50,8 +50,11 @@ def mail_fetch():
     for i in range(index - amount + 1, index + 1):
         print("==== Email:", i, "=====")
         resp, lines, octets = server.retr(i)
-        fields, values = parser.parseEmailCall(lines)
-        calls.append(parser.createCall(fields, values))
+        fields, values, email_from = parser.parseEmailCall(lines)
+
+        if (email_from == "noreply-atendimento@rnp.br"
+                or email_from == "atendimento@rnp.br"):
+            calls.append(parser.createCall(fields, values))
 
     server.quit()
 
@@ -69,6 +72,7 @@ def mail_fetch():
 def main():
     mail_fetch()
     print(datetime.now())
+
 
 if __name__ == "__main__":
     main()
