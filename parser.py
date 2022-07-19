@@ -9,7 +9,56 @@ def parseEmailCall(lines):
 
     # lines stores each line of the original text of the message
     # so that you can get the original text of the entire message use the join function and lines variable.
-    msg_content = b'\r\n'.join(lines).decode('utf-8')
+    msg_content = b'\r\n'.join(lines).decode('utf8')
+
+    msg_content = msg_content.replace('=C3=A7', 'ç')
+
+    msg_content = msg_content.replace('=C3=80', 'À')
+    msg_content = msg_content.replace('=C3=81', 'Á')
+    msg_content = msg_content.replace('=C3=82', 'Â')
+    msg_content = msg_content.replace('=C3=83', 'Ã')
+    msg_content = msg_content.replace('=C3=A0', 'à')
+    msg_content = msg_content.replace('=C3=A1', 'á')
+    msg_content = msg_content.replace('=C3=A2', 'â')
+    msg_content = msg_content.replace('=C3=A3', 'ã')
+
+    msg_content = msg_content.replace('=C3=88', 'È')
+    msg_content = msg_content.replace('=C3=89', 'É')
+    msg_content = msg_content.replace('=C3=8A', 'Ê')
+    msg_content = msg_content.replace('=C3=8B', 'Ë')
+    msg_content = msg_content.replace('=C3=A8', 'è')
+    msg_content = msg_content.replace('=C3=A9', 'é')
+    msg_content = msg_content.replace('=C3=AA', 'ê')
+    msg_content = msg_content.replace('=C3=AB', 'ë')
+
+    msg_content = msg_content.replace('=C3=88', 'Ì')
+    msg_content = msg_content.replace('=C3=89', 'Í')
+    msg_content = msg_content.replace('=C3=8A', 'Î')
+    msg_content = msg_content.replace('=C3=8B', 'Ï')
+    msg_content = msg_content.replace('=C3=AC', 'ì')
+    msg_content = msg_content.replace('=C3=AD', 'í')
+    msg_content = msg_content.replace('=C3=AE', 'î')
+    msg_content = msg_content.replace('=C3=BF', 'ï')
+
+    msg_content = msg_content.replace('=C3=92', 'Ò')
+    msg_content = msg_content.replace('=C3=93', 'Ó')
+    msg_content = msg_content.replace('=C3=94', 'Ô')
+    msg_content = msg_content.replace('=C3=95', 'Õ')
+    msg_content = msg_content.replace('=C3=96', 'Ö')
+    msg_content = msg_content.replace('=C3=B2', 'ò')
+    msg_content = msg_content.replace('=C3=B3', 'ó')
+    msg_content = msg_content.replace('=C3=B4', 'ô')
+    msg_content = msg_content.replace('=C3=B5', 'õ')
+    msg_content = msg_content.replace('=C3=B6', 'ö')
+
+    msg_content = msg_content.replace('=C3=99', 'Ù')
+    msg_content = msg_content.replace('=C3=9A', 'Ú')
+    msg_content = msg_content.replace('=C3=9B', 'Û')
+    msg_content = msg_content.replace('=C3=9C', 'Ü')
+    msg_content = msg_content.replace('=C3=B9', 'ù')
+    msg_content = msg_content.replace('=C3=BA', 'ú')
+    msg_content = msg_content.replace('=C3=BB', 'û')
+    msg_content = msg_content.replace('=C3=BC', 'ü')
 
     msg_content = msg_content.replace('=09', '')
     msg_content = msg_content.replace('=E7', 'ç')
@@ -91,6 +140,7 @@ def createCall(keys, values):
         ]
 
     for i in range(len(values)):
+        print(values[i])
         if keys[i] == 'answered':
             call[keys[i]] = True if values[i] == 'Yes' else False
         else:

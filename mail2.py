@@ -20,10 +20,10 @@ def mail_fetch():
     server.set_debuglevel(1)
 
     # get pop3 server welcome message.
-    pop3_server_welcome_msg = server.getwelcome().decode('utf-8')
+    pop3_server_welcome_msg = server.getwelcome().decode('utf8')
 
     # print out the pop3 server welcome message.
-    print(server.getwelcome().decode('utf-8'))
+    print(server.getwelcome().decode('utf8'))   
 
     # Stablish Stls protocol
     server.stls()
@@ -52,11 +52,11 @@ def mail_fetch():
         resp, lines, octets = server.retr(i)
         fields, values, email_from = parser.parseEmailCall(lines)
 
-        if (email_from == "noreply-atendimento@rnp.br"
-                or email_from == "atendimento@rnp.br"
-                or email_from == "sla@gigacandanga.net.br>"
-                or email_from == "matheus.bawden@gigacandanga.net.br"):
-            calls.append(parser.createCall(fields, values))
+        # if (email_from == "noreply-atendimento@rnp.br"
+        #         or email_from == "atendimento@rnp.br"
+        #         or email_from == "sla@gigacandanga.net.br>"
+        #         or email_from == "matheus.bawden@gigacandanga.net.br"):
+        calls.append(parser.createCall(fields, values))
 
     server.quit()
 
