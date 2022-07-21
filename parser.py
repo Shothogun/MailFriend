@@ -140,7 +140,6 @@ def createCall(keys, values):
         ]
 
     for i in range(len(values)):
-        print(values[i])
         if keys[i] == 'answered':
             call[keys[i]] = True if values[i] == 'Yes' else False
         else:

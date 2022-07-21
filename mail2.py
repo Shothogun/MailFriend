@@ -52,11 +52,11 @@ def mail_fetch():
         resp, lines, octets = server.retr(i)
         fields, values, email_from = parser.parseEmailCall(lines)
 
-        # if (email_from == "noreply-atendimento@rnp.br"
-        #         or email_from == "atendimento@rnp.br"
-        #         or email_from == "sla@gigacandanga.net.br>"
-        #         or email_from == "matheus.bawden@gigacandanga.net.br"):
-        calls.append(parser.createCall(fields, values))
+        if (email_from == "noreply-atendimento@rnp.br"
+                or email_from == "atendimento@rnp.br"
+                or email_from == "sla@gigacandanga.net.br>"
+                or email_from == "matheus.bawden@gigacandanga.net.br"):
+            calls.append(parser.createCall(fields, values))
 
     server.quit()
 
